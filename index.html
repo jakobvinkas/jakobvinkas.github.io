@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>My GitHub Pages Projects</title>
+  <style>
+    body { font-family: sans-serif; padding: 2rem; background: #f9f9f9; text-align: center; }
+    h1 { font-size: 2rem; }
+    ul { list-style: none; padding: 0; }
+    li { margin: 1rem 0; }
+    a { color: #007acc; font-size: 1.2rem; text-decoration: none; }
+    a:hover { text-decoration: underline; }
+  </style>
+</head>
+<body>
+  <h1>My GitHub Pages Projects</h1>
+  <ul id="repoList">Loading...</ul>
+
+  <script>
+    const username = "jakobvinkas";
+
+    fetch(`https://api.github.com/users/${username}/repos?per_page=100`)
+      .then(res => res.json())
+      .then(repos => {
+        const list = document.getElementById("repoList");
+        list.innerHTML = "";
+        repos.forEach(repo => {
+          if (repo.fork) return;
+          const pagesUrl = `https://${username}.github.io/${repo.name}/`;
+          fetch(`https://api.github.com/repos/${username}/${repo.name}/pages`)
+            .then(pagesRes => {
+              if (pagesRes.ok) {
+                const item = document.createElement("li");
+                const link = document.createElement("a");
+                link.href = pagesUrl;
+                link.target = "_blank";
+                link.textContent = repo.name;
+                item.appendChild(link);
+                list.appendChild(item);
+              }
+            });
+        });
+      })
+      .catch(err => {
+        document.getElementById("repoList").textContent = "Failed to load projects.";
+        console.error(err);
+      });
+  </script>
+</body>
+</html>
